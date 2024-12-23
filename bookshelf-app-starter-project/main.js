@@ -2,6 +2,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const books = []; 
   const RENDER_EVENT = "render-books";
 
+  if (localStorage.getItem('books')) {
+    books = JSON.parse(localStorage.getItem('books'));
+  }
+
   const bookForm = document.getElementById("bookForm");
   bookForm.addEventListener("submit", function (event) {
     event.preventDefault();
@@ -21,6 +25,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     books.push(bookObject); 
     console.log("Book added:", bookObject); 
+    saveBooksToLocalStorage();
     document.dispatchEvent(new Event(RENDER_EVENT)); 
     bookForm.reset(); 
   });
@@ -77,6 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
       : "Selesai dibaca";
     toggleButton.addEventListener("click", function () {
       book.isComplete = !book.isComplete;
+      saveBooksToLocalStorage();
       document.dispatchEvent(new Event(RENDER_EVENT));
     });
 
@@ -86,11 +92,16 @@ document.addEventListener("DOMContentLoaded", function () {
     deleteButton.addEventListener("click", function () {
       const index = books.findIndex((item) => item.id === book.id);
       if (index !== -1) books.splice(index, 1);
+      saveBooksToLocalStorage();
       document.dispatchEvent(new Event(RENDER_EVENT));
     });
 
     actionContainer.append(toggleButton, deleteButton);
     bookContainer.append(bookTitle, bookAuthor, bookYear, actionContainer);
     return bookContainer;
+  }
+
+  function saveBooksToLocalStorage(){
+    localStorage.setItem('books', JSON.stringify(books));
   }
 });
