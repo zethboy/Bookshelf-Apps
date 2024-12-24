@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const books = []; 
+  let books = []; 
   const RENDER_EVENT = "render-books";
 
   if (localStorage.getItem('books')) {
@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const title = document.getElementById("bookFormTitle").value;
     const author = document.getElementById("bookFormAuthor").value;
-    const year = document.getElementById("bookFormYear").value;
+    const year = parseInt(document.getElementById("bookFormYear").value, 10);
     const isComplete = document.getElementById("bookFormIsComplete").checked;
 
     const bookObject = {
@@ -24,27 +24,36 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     books.push(bookObject); 
-    console.log("Book added:", bookObject); 
     saveBooksToLocalStorage();
     document.dispatchEvent(new Event(RENDER_EVENT)); 
     bookForm.reset(); 
   });
 
-  document.addEventListener(RENDER_EVENT, function () {
-    renderBooks();
+  
+  const searchForm = document.getElementById("searchBook");
+  searchForm.addEventListener("submit", function(event) {
+    event.preventDefault(); 
+    const query = document.getElementById("searchBookTitle").value.toLowerCase(); 
+
+    
+    const filteredBooks = books.filter(book => book.title.toLowerCase().includes(query));
+    renderBooks(filteredBooks);
   });
 
-  function renderBooks() {
+  
+  document.addEventListener(RENDER_EVENT, function () {
+    renderBooks(books);
+  });
+
+  
+  function renderBooks(filteredBooks) {
     const incompleteBookList = document.getElementById("incompleteBookList");
     const completeBookList = document.getElementById("completeBookList");
 
     incompleteBookList.innerHTML = "";
     completeBookList.innerHTML = "";
 
-    console.log("Rendering books...");
-    console.log("Books array:", books); 
-
-    for (const book of books) {
+    for (const book of filteredBooks) {
       const bookElement = createBookElement(book);
       if (book.isComplete) {
         completeBookList.append(bookElement);
@@ -52,8 +61,6 @@ document.addEventListener("DOMContentLoaded", function () {
         incompleteBookList.append(bookElement);
       }
     }
-
-    console.log("Books rendered successfully");
   }
 
   function createBookElement(book) {
