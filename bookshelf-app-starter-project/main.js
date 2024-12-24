@@ -1,10 +1,14 @@
 document.addEventListener("DOMContentLoaded", function () {
-  let books = []; 
+  let books = [];
   const RENDER_EVENT = "render-books";
 
-  if (localStorage.getItem('books')) {
-    books = JSON.parse(localStorage.getItem('books'));
+  
+  if (localStorage.getItem("books")) {
+    books = JSON.parse(localStorage.getItem("books"));
+    console.log("Books loaded from Local Storage:", books); 
+    renderBooks(books); 
   }
+  
 
   const bookForm = document.getElementById("bookForm");
   bookForm.addEventListener("submit", function (event) {
@@ -23,36 +27,41 @@ document.addEventListener("DOMContentLoaded", function () {
       isComplete,
     };
 
-    books.push(bookObject); 
+    books.push(bookObject);
+    console.log("Book added:", bookObject);
     saveBooksToLocalStorage();
-    document.dispatchEvent(new Event(RENDER_EVENT)); 
-    bookForm.reset(); 
+    document.dispatchEvent(new Event(RENDER_EVENT));
+    bookForm.reset();
   });
 
-  
   const searchForm = document.getElementById("searchBook");
-  searchForm.addEventListener("submit", function(event) {
+searchForm.addEventListener("submit", function (event) {
     event.preventDefault(); 
+
     const query = document.getElementById("searchBookTitle").value.toLowerCase(); 
+    console.log("Search query:", query); 
 
     
-    const filteredBooks = books.filter(book => book.title.toLowerCase().includes(query));
-    renderBooks(filteredBooks);
-  });
+    const filteredBooks = books.filter((book) =>
+        book.title.toLowerCase().includes(query)
+    );
 
-  
+    
+    renderBooks(filteredBooks);
+});
+
+
   document.addEventListener(RENDER_EVENT, function () {
     renderBooks(books);
   });
 
-  
   function renderBooks(filteredBooks) {
     const incompleteBookList = document.getElementById("incompleteBookList");
     const completeBookList = document.getElementById("completeBookList");
-
+  
     incompleteBookList.innerHTML = "";
     completeBookList.innerHTML = "";
-
+  
     for (const book of filteredBooks) {
       const bookElement = createBookElement(book);
       if (book.isComplete) {
@@ -62,26 +71,28 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
   }
+  
 
   function createBookElement(book) {
+    console.log("Creating element for book:", book); 
     const bookContainer = document.createElement("div");
     bookContainer.setAttribute("data-bookid", book.id);
     bookContainer.setAttribute("data-testid", "bookItem");
-
+  
     const bookTitle = document.createElement("h3");
     bookTitle.setAttribute("data-testid", "bookItemTitle");
     bookTitle.innerText = book.title;
-
+  
     const bookAuthor = document.createElement("p");
     bookAuthor.setAttribute("data-testid", "bookItemAuthor");
     bookAuthor.innerText = `Penulis: ${book.author}`;
-
+  
     const bookYear = document.createElement("p");
     bookYear.setAttribute("data-testid", "bookItemYear");
     bookYear.innerText = `Tahun: ${book.year}`;
-
+  
     const actionContainer = document.createElement("div");
-
+  
     const toggleButton = document.createElement("button");
     toggleButton.setAttribute("data-testid", "bookItemIsCompleteButton");
     toggleButton.innerText = book.isComplete
@@ -92,7 +103,7 @@ document.addEventListener("DOMContentLoaded", function () {
       saveBooksToLocalStorage();
       document.dispatchEvent(new Event(RENDER_EVENT));
     });
-
+  
     const deleteButton = document.createElement("button");
     deleteButton.setAttribute("data-testid", "bookItemDeleteButton");
     deleteButton.innerText = "Hapus Buku";
@@ -102,13 +113,15 @@ document.addEventListener("DOMContentLoaded", function () {
       saveBooksToLocalStorage();
       document.dispatchEvent(new Event(RENDER_EVENT));
     });
-
+  
     actionContainer.append(toggleButton, deleteButton);
     bookContainer.append(bookTitle, bookAuthor, bookYear, actionContainer);
     return bookContainer;
   }
+  
 
-  function saveBooksToLocalStorage(){
-    localStorage.setItem('books', JSON.stringify(books));
+  function saveBooksToLocalStorage() {
+    localStorage.setItem("books", JSON.stringify(books));
+    console.log("Books saved to Local Storage:", books);
   }
 });
